@@ -1,0 +1,20 @@
+/node_modules
+.github/
+public/
+dist/
+# OS
+.DS_Store
+.idea
+.editorconfig
+.npmrc
+package.json
+package-lock.json
+yarn.lock
+# Ignored suffix
+*.log
+*.md
+*.svg
+*.png
+*ignore
+## Built-files
+.cache
