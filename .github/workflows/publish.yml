@@ -32,11 +32,22 @@ jobs:
         run: |
           npm install
           npm run postinstall
-          npm run build
-
-      - name: Publish releases
+          npm run package
         env:
           # This is used for uploading release assets to github
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        run: |
-          npm exec electron-builder
+
+      - name: upload artifacts
+          uses: actions/upload-artifact@v3.0.0
+          with:
+            name: ${{ matrix.os }}
+            path: release/build
+
+      - name: Publish releases
+        uses: softprops/action-gh-release@v0.1.14
+        with:
+            files: "release/build/**"
+        env:
+          # This is used for uploading release assets to github
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
