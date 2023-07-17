@@ -2,8 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <!-- 允许应用在执行时使用未签名的可执行内存 -->
     <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <!-- 键的值设置为true -->
     <true/>
+    <!-- 允许应用使用即时编译（Just-In-Time，简称JIT）。JIT是一种编译技术，它允许代码在运行时被编译（而不是提前编译）。 -->
     <key>com.apple.security.cs.allow-jit</key>
     <true/>
   </dict>

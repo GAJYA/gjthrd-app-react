@@ -8,6 +8,9 @@
     "strict": true,
     "sourceMap": true,
     "baseUrl": "./src",
+    "paths": {
+      "@/*": ["./*"] // 模块名到文件位置的映射
+    },
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
