@@ -40,6 +40,8 @@ jobs:
           git config --global user.name "GitHub Action"
           git tag v$(date +'%Y%m%d%H%M%S')
           git push origin v$(date +'%Y%m%d%H%M%S')
+        env:
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Publish releases
         env:
