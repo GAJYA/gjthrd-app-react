@@ -38,10 +38,10 @@ jobs:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       - name: upload artifacts
-          uses: actions/upload-artifact@v3.0.0
-          with:
-            name: ${{ matrix.os }}
-            path: release/build
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: ${{ matrix.os }}
+          path: release/build
 
       - name: Publish releases
         uses: softprops/action-gh-release@v0.1.14
