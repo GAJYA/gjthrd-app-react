@@ -28,7 +28,7 @@ jobs:
           node-version: 18
           cache: npm
 
-      -name: 安装yarn
+      - name: 安装yarn
         run: npm i -g yarn
 
       - name: Install and build
