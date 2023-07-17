@@ -33,16 +33,6 @@ jobs:
           npm run postinstall
           npm run build
 
-      - name: Cleanup Artifacts for Windows
-          if: matrix.os == 'windows-latest'
-          run: |
-            npx rimraf "dist/!(*.exe)"
-
-        - name: Cleanup Artifacts for MacOS
-          if: matrix.os == 'macos-latest'
-          run: |
-            npx rimraf "dist/!(*.dmg)"
-
       - name: Publish releases
         env:
           # This is used for uploading release assets to github
