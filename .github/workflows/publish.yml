@@ -35,6 +35,21 @@ jobs:
           # This is used for uploading release assets to github
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
+      - name: Cleanup Artifacts for Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          npx rimraf "release/build/!(*.exe)"
+
+      - name: Cleanup Artifacts for MacOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          npx rimraf "release/build/!(*.dmg)"
+
+      - name: Cleanup Artifacts for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npx rimraf "release/build/!(*.AppImage)"
+
       - name: Read package.json
         uses: tyankatsu0105/read-package-version-actions@v1
         id: package-version
