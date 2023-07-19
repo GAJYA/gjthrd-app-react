@@ -13,10 +13,9 @@
   "license": "MIT",
   "author": {
     "name": "gjthrd",
-    "email": "gjthrd.gjzq.com.cn"
+    "email": "gjthrd@gjzq.com.cn"
   },
   "main": "./src/main/main.ts",
-  "version": "0.0.3",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
@@ -177,7 +176,7 @@
     "webpack-merge": "^5.9.0"
   },
   "build": {
-    "productName": "ElectronReact",
+    "productName": "底稿上传",
     "appId": "org.erb.ElectronReact",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
