@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, Tray, Menu } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import MenuBuilder from './menu'
@@ -23,7 +23,9 @@ class AppUpdater {
   }
 }
 
+const iconPath = path.join(__dirname, '../../assets/icon.png')
 let mainWindow: BrowserWindow | null = null
+let tray: Tray
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`
@@ -69,6 +71,7 @@ const createWindow = async () => {
   }
 
   mainWindow = new BrowserWindow({
+    // frame: false, // 设置无边框窗口
     show: false,
     width: 1024,
     height: 728,
@@ -79,6 +82,30 @@ const createWindow = async () => {
   })
 
   mainWindow.loadURL(resolveHtmlPath('index.html'))
+
+  tray = new Tray(iconPath) // 实例化一个tray对象，构造函数的唯一参数是需要在托盘中显示的图标url
+
+  tray.setToolTip('底稿上传工具') // 鼠标移到托盘中应用程序的图标上时，显示的文本
+
+  tray.on('click', () => {
+    // 点击图标的响应事件，这里是切换主窗口的显示和隐藏
+    if (mainWindow?.isVisible()) {
+      mainWindow.hide()
+    } else {
+      mainWindow?.show()
+    }
+  })
+
+  tray.on('right-click', () => {
+    // 右键点击图标时，出现的菜单，通过Menu.buildFromTemplate定制，这里只包含退出程序的选项。
+    const menuConfig = Menu.buildFromTemplate([
+      {
+        label: '退出',
+        click: () => app.quit(),
+      },
+    ])
+    tray.popUpContextMenu(menuConfig)
+  })
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -95,8 +122,11 @@ const createWindow = async () => {
     mainWindow = null
   })
 
+  // 自定义菜单
   const menuBuilder = new MenuBuilder(mainWindow)
   menuBuilder.buildMenu()
+  // 去掉菜单栏
+  // mainWindow.removeMenu()
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {

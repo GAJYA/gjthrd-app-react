@@ -8,23 +8,14 @@ function Hello() {
       <div className="Hello">
         <img width="200" alt="icon" src={icon} />
       </div>
-      <h1>electron-react-boilerplate</h1>
+      <h1>底稿上传工具</h1>
       <div className="Hello">
-        <a href="https://electron-react-boilerplate.js.org/" target="_blank" rel="noreferrer">
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a href="https://github.com/sponsors/electron-react-boilerplate" target="_blank" rel="noreferrer">
-          <button type="button">
-            <span role="img" aria-label="folded hands">
-              🙏
-            </span>
-            Donate
-          </button>
+        <a
+          href="https://ibd-test.gjzqth.com/user/login?redirect=%2Flogin&bypassword=1"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <button type="button">跳转登录页面</button>
         </a>
       </div>
     </div>
