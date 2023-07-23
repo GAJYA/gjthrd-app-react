@@ -18,5 +18,6 @@
     "allowJs": true,
     "outDir": ".erb/dll"
   },
-  "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"]
+  "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "assets/**/*.d.ts"],
 }
