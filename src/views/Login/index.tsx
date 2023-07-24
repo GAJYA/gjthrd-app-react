@@ -75,10 +75,6 @@ export default function Login() {
     }
   }
 
-  const setTitle = () => {
-    window.electron.setTitle('随便设置')
-  }
-
   console.log('wxLogin: ', wxLogin)
   const WwLogin = wxLogin()
   useEffect(() => {
@@ -101,9 +97,6 @@ export default function Login() {
       <Tabs activeKey={activeKey} onChange={setActiveKey}>
         <TabPane tab="二维码" key="qrcode">
           <div id="wx_reg" />
-          <Button type="primary" onClick={setTitle}>
-            修改标题
-          </Button>
         </TabPane>
         <TabPane tab="用户名密码" key="password">
           <Form form={form} onFinish={handleLogin} initialValues={{ username: '', password: '' }}>
