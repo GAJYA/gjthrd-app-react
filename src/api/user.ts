@@ -42,7 +42,7 @@ export const wxLogin = () => {
 
 export const checkLogin = (params: CheckLoginParam) => {
   return service({
-    url: 'https://ibd.gjzq.cn/account_api/check_login',
+    url: 'https://ibd-test.gjzqth.cn/account_api/check_login',
     method: 'get',
     params,
   })

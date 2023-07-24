@@ -1,4 +1,7 @@
+/* eslint-disable promise/always-return */
+/* eslint-disable no-console */
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button, Form, Input, Tabs } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { login, loginWithQRCode, wxLogin, checkLogin } from '@/api/user'
@@ -10,10 +13,10 @@ const { TabPane } = Tabs
 
 const APPID = 'wwe407a9efde1708d9'
 
-
-export function Login() {
+export default function Login() {
   const [form] = Form.useForm()
   const [activeKey, setActiveKey] = useState('qrcode')
+  const navigate = useNavigate()
 
   const handleLogin = (values: any) => {
     if (activeKey === 'password') {
@@ -27,13 +30,13 @@ export function Login() {
     }
   }
 
-  window.electron.handleRedirect((event) => console.log('handleRedirect', event))
+  window.electron.handleRedirect((event: any) => console.log('handleRedirect', event))
 
   const handleRedirectUri = (code: string) => {
     console.log(window.electron.handleRedirect)
     window.electron.handleRedirect((event: any, value: any) => {
-      console.log('router push', value)
-      // router.push(value)
+      console.log('navigate redirect', value)
+      navigate(value)
       const param = {
         code,
         qywx: '1',
@@ -43,7 +46,7 @@ export function Login() {
       checkLogin(param)
         .then((response) => {
           // handle success
-          console.log(response);
+          console.log(response)
         })
         .catch(function (error) {
           // handle error
@@ -55,20 +58,25 @@ export function Login() {
   // 监听函数
   const handleMessage = (event: { origin: any; data: string }) => {
     console.log(event, 'event 22222222222222222')
-    let origin = event.origin
+    const { origin } = event
     console.log('event.origin', event.origin)
-    if (origin == 'https://open.work.weixin.qq.com') {
+    if (origin === 'https://open.work.weixin.qq.com') {
       console.log('event.data', event.data)
       const query = event.data.split('?')[1]
       console.log('query:', query)
-      let params = new URLSearchParams(query)
+      const params = new URLSearchParams(query)
 
-      let code = params.get('code')
+      const code = params.get('code')
+      // eslint-disable-next-line no-debugger
       debugger
       if (query) {
-        handleRedirectUri(code)
+        handleRedirectUri(code || '')
       }
     }
+  }
+
+  const setTitle = () => {
+    window.electron.setTitle('随便设置')
   }
 
   console.log('wxLogin: ', wxLogin)
@@ -77,31 +85,26 @@ export function Login() {
     // 创建扫码监听事件，需要在不用的时候进行清除
     if (typeof window.addEventListener !== 'undefined') {
       window.addEventListener('message', handleMessage, false)
-    } else if (typeof window.attachEvent !== 'undefined') {
-      window.attachEvent('onmessage', handleMessage)
     }
     // eslint-disable-next-line no-new
     new WwLogin({
       id: 'wx_reg',
       appid: 'wwe407a9efde1708d9',
-      agentid: '1000006',
-      redirect_uri: 'https://ibd.gjzq.cn',
-      // redirect_uri: 'https://ibd.gjzq.cn/',
-      // redirect_uri: 'https://ibdhub.gjzq.cn',
+      agentid: '1000007',
+      redirect_uri: 'https://ibd-test.gjzqth.com/user/login?qywx=1',
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleRedirectTest = async () => {
-    console.log('test redirect')
-    const result = await redirectTest()
-    console.log(result) // 这里可以看到请求的结果
-  }
-
   return (
     <div>
-      <h1>登录</h1>
       <Tabs activeKey={activeKey} onChange={setActiveKey}>
+        <TabPane tab="二维码" key="qrcode">
+          <div id="wx_reg" />
+          <Button type="primary" onClick={setTitle}>
+            修改标题
+          </Button>
+        </TabPane>
         <TabPane tab="用户名密码" key="password">
           <Form form={form} onFinish={handleLogin} initialValues={{ username: '', password: '' }}>
             <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
@@ -117,15 +120,7 @@ export function Login() {
             </Form.Item>
           </Form>
         </TabPane>
-        <TabPane tab="二维码" key="qrcode">
-          <div id="wx_reg" />
-          <Button type="primary" onClick={handleRedirectTest}>
-            Redirect Test
-          </Button>
-        </TabPane>
       </Tabs>
     </div>
   )
 }
-
-export default Login
