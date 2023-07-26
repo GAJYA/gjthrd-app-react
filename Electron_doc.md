@@ -95,6 +95,49 @@ graph TD
 
 
 ## 断线续传
+分片上传逻辑：
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+    participant O as OSS
+    Note over C,S: File is chosen for upload
+    C->>S: POST /init_multipart_upload/{key}
+    Note over S,O: Initialize multipart upload
+    O-->>S: upload_id
+    S-->>C: {upload_id: id}
+    loop For each part
+        Note over C,S: Part is read and sent
+        C->>S: POST /upload_part/{key}/{upload_id}/{part_number}
+        Note over S,O: Upload part
+        O-->>S: {etag: etag}
+        S-->>C: {etag: etag}
+    end
+    C->>S: POST /complete_multipart_upload/{key}/{upload_id}
+    Note over S,O: Complete multipart upload
+    O-->>S: Status of completion
+    S-->>C: {status: "complete"}
+```
+
+这个流程图的基本逻辑如下：
+
+1. 客户端(Client)选择一个文件上传，并向服务器(Server)发送初始化多部分上传的请求。
+
+2. 服务器在OSS上初始化多部分上传，OSS返回一个upload_id。
+
+3. 服务器将upload_id返回给客户端。
+
+4. 客户端开始逐个读取文件的每一部分，并向服务器发送每一部分的数据。
+
+5. 服务器将每一部分的数据上传到OSS，OSS返回一个etag。
+
+6. 服务器将etag返回给客户端。
+
+7. 客户端在所有部分都上传完成后，向服务器发送完成多部分上传的请求。
+
+8. 服务器在OSS上完成多部分上传，OSS返回完成的状态。
+
+9. 服务器将完成的状态返回给客户端。
 
 阿里云对象存储分片上传设计:
 
