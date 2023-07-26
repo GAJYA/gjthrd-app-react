@@ -68,7 +68,80 @@ graph TD
 
 9. **完整的鉴权机制：** 可以用 OAuth 或 JWT 等协议来实现鉴权。用户登录并授权后可以获取到一个令牌，然后可以用这个令牌来验证用户的身份和访问权限。权限管理，可以在服务器端进行控制，只对具有相应权限的用户提供服务。
 
-   1. 客户端和web端同步登录，网页已登录，点击调用客户端，不需要重新登录---待确认 
+   1. 客户端和web端同步登录，网页已登录，点击调用客户端，不需要重新登录---待确认
+    # Electron登录鉴权+进程间通信
+
+目前认证中心接入了企业微信OAuth认证，
+
+业务平台接入了认证中心的OAuth认证，
+
+Electron作为独立应用，为了能让用户通过企业微信扫码登录，并正确获取业务平台认证(Cookies->SESSION)，做了以下操作:
+1. Renderer进程调用业务平台的Checklogin接口: 未授权会经过多次302重定向，最终至认证中心扫码登录页面
+
+2. Main进程监听HeadersReceived事件，捕获认证成功的Cookie(SESSION)，并通过篡改SameSite，允许跨域Ajax请求携带Cookie(SESSION)
+
+   ```js
+   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+         if (!details.responseHeaders) return
+         if (details.url.includes('/hermes/login/oauth2/code/hydra?code')) {
+           const setCookieHeaders = details.responseHeaders['set-cookie']
+           if (setCookieHeaders) {
+             const updatedSetCookieHeaders = setCookieHeaders.map((header) => {
+               if (header.toLowerCase().includes('samesite')) {
+                 // 如果已有SameSite属性，替换为SameSite=None
+                 return header.replace(/SameSite=\w+;/i, 'SameSite=None;')
+               }
+               // 如果没有SameSite属性，添加SameSite=None
+               return `${header}; SameSite=None`
+             })
+             details.responseHeaders['set-cookie'] = updatedSetCookieHeaders
+           }
+         }
+         callback({ cancel: false, responseHeaders: details.responseHeaders })
+       })
+   ```
+
+3. 允许Ajax跨域携带Cookie后，未来所有发往业务平台API的请求都会携带对应Cookie.
+
+
+
+## Electron进程间通信模型
+
+在 Electron 中，有两种进程：主进程 (Main Process) 和渲染器进程 (Renderer Process)。主进程负责运行 package.json 的 main 脚本并创建应用窗口，渲染器进程则用于运行用户界面的 JavaScript。这两种进程之间的通信主要依赖 Electron 的 IPC (Inter Process Communication) 模块。
+
+以下是一个 Mermaid 流程图，描述 Electron 中的主进程和渲染器进程之间的 IPC 通信：
+
+```mermaid
+sequenceDiagram
+    participant M as Main Process
+    participant I as IPC
+    participant R as Renderer Process
+
+    Note over M,I: Send a message to Renderer Process
+    M->>I: ipcMain.send('message', args)
+    I->>R: Message received
+
+    Note over R,I: Respond to message
+    R->>I: ipcRenderer.send('response', args)
+    I->>M: Response received
+
+    Note over R,I: Send a synchronous message to Main Process
+    R->>I: result = ipcRenderer.sendSync('sync-message', args)
+    I->>M: Sync Message received
+
+    Note over M,I: Respond to sync message
+    M->>I: event.returnValue = 'response'
+    I->>R: Sync response received
+```
+
+在这个流程中：
+
+1. 主进程通过 IPC 的 ipcMain.send 方法发送一条消息到渲染器进程。
+2. 渲染器进程收到消息，并通过 IPC 的 ipcRenderer.send 方法发送回复。
+3. 渲染器进程也可以发送同步消息给主进程，通过 IPC 的 ipcRenderer.sendSync 方法。
+4. 主进程收到同步消息，并通过修改 event 的 returnValue 属性来同步回复。
+
+请注意，由于 Electron 本身的架构，同步 IPC 消息可能会阻塞主进程，因此应该尽量避免使用。
 
 10. **测试**：在开发过程中，需要进行单元测试和集成测试。可以使用` Mocha, Chai, Jest`等工具进行测试。
 
