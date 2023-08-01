@@ -1,33 +1,56 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom'
-import icon from '../../assets/icon.svg'
+import React, { useEffect, useState, ReactElement } from 'react'
+import Dashboard from '@/views/Dashboard'
+import LayoutWrapper from '@/components/Layout'
+import ManuscriptPtoject from '@/views/ManuscriptProject'
+import { Skeleton } from 'antd'
 import './App.css'
+import { checkLogin } from '@/api/user'
 
-function Hello() {
+function Home(): ReactElement {
   return (
     <div>
-      <div className="Hello">
-        <img width="200" alt="icon" src={icon} />
-      </div>
-      <h1>底稿上传工具</h1>
-      <div className="Hello">
-        <a
-          href="https://ibd-test.gjzqth.com/user/login?redirect=%2Flogin&bypassword=1"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">跳转登录页面</button>
-        </a>
-      </div>
+      <ManuscriptPtoject />
+    </div>
+  )
+}
+
+function Loading() {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Skeleton active />
     </div>
   )
 }
 
 export default function App() {
-  return (
-    <Router>
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [userInfo, setUserInfo] = useState({ userName: '' })
+
+  useEffect(() => {
+    checkLogin()
+      .then((response) => {
+        const { data } = response.data
+        setLoggedIn(true)
+        setUserInfo(data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }, [loggedIn])
+  return loggedIn ? (
+    <Router initialEntries={['/']}>
       <Routes>
-        <Route path="/" element={<Hello />} />
+        <Route path="/loading" element={<Loading />} />
+        <Route path="/" element={<LayoutWrapper user={userInfo} />}>
+          <Route index element={<Home />} />
+          {/* <Route path="/home" element={<Home />} /> */}
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="about" element={<div>About</div>} />
+        </Route>
       </Routes>
     </Router>
+  ) : (
+    <Loading />
   )
 }

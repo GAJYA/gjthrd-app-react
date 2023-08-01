@@ -178,14 +178,14 @@ export default class MenuBuilder {
   buildDefaultTemplate() {
     const templateDefault = [
       {
-        label: '&File',
+        label: '&文件',
         submenu: [
           {
-            label: '&Open',
+            label: '&打开',
             accelerator: 'Ctrl+O',
           },
           {
-            label: '&Close',
+            label: '&关闭',
             accelerator: 'Ctrl+W',
             click: () => {
               this.mainWindow.close()
@@ -194,19 +194,19 @@ export default class MenuBuilder {
         ],
       },
       {
-        label: '&View',
+        label: '&视图',
         submenu:
           process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true'
             ? [
                 {
-                  label: '&Reload',
+                  label: '&刷新',
                   accelerator: 'Ctrl+R',
                   click: () => {
                     this.mainWindow.webContents.reload()
                   },
                 },
                 {
-                  label: 'Toggle &Full Screen',
+                  label: '切换&全屏',
                   accelerator: 'F11',
                   click: () => {
                     this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen())
@@ -222,7 +222,7 @@ export default class MenuBuilder {
               ]
             : [
                 {
-                  label: 'Toggle &Full Screen',
+                  label: '切换&全屏',
                   accelerator: 'F11',
                   click: () => {
                     this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen())
@@ -231,30 +231,18 @@ export default class MenuBuilder {
               ],
       },
       {
-        label: 'Help',
+        label: '帮助',
         submenu: [
           {
-            label: 'Learn More',
+            label: '更多',
             click() {
               shell.openExternal('https://electronjs.org')
             },
           },
           {
-            label: 'Documentation',
+            label: '文档',
             click() {
               shell.openExternal('https://github.com/electron/electron/tree/main/docs#readme')
-            },
-          },
-          {
-            label: 'Community Discussions',
-            click() {
-              shell.openExternal('https://www.electronjs.org/community')
-            },
-          },
-          {
-            label: 'Search Issues',
-            click() {
-              shell.openExternal('https://github.com/electron/electron/issues')
             },
           },
         ],

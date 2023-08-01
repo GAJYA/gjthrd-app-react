@@ -33,9 +33,7 @@
     "test": "jest"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "cross-env NODE_ENV=development eslint --cache"
-    ],
+    "src/**/*.{js,jsx,ts,tsx}": ["prettier --write"],
     "*.json,.{eslintrc,prettierrc}": [
       "prettier --ignore-path .eslintignore --parser json --write"
     ],
@@ -235,8 +233,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "GAJYA",
-      "repo": "gjthrd-app-react"
+      "owner": "gjthrd",
+      "repo": "gjthrd_gaia"
     }
   },
   "devEngines": {
