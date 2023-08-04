@@ -28,13 +28,19 @@ export default function App() {
   const [userInfo, setUserInfo] = useState({ userName: '' })
 
   useEffect(() => {
+    window.onerror = (message) => {
+      window.electron.log(`error: ${message}`)
+    }
+    window.electron.log('app start')
     checkLogin()
       .then((response) => {
         const { data } = response.data
         setLoggedIn(true)
         setUserInfo(data)
+        window.electron.log('login success')
       })
       .catch((error) => {
+        window.electron.log(`checklogin: ${error}`)
         console.log(error)
       })
   }, [loggedIn])

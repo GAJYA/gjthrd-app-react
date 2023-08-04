@@ -9,12 +9,14 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain, Tray, Menu, BrowserView, session } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, BrowserView, session, Menu, Tray } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import MenuBuilder from './menu'
 import { resolveHtmlPath, clearAllCookies } from './util'
 
+log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}] [{level}] {text}'
+log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}] [{level}] {text}'
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info'
@@ -23,9 +25,8 @@ class AppUpdater {
   }
 }
 app.commandLine.appendSwitch('disable-features', 'BlockInsecurePrivateNetworkRequests')
-const iconPath = path.join(__dirname, '../../assets/icon.png')
 let mainWindow: BrowserWindow | null = null
-let tray: Tray
+let tray: Tray | null = null
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`
@@ -91,6 +92,25 @@ const createWindow = async () => {
     },
   })
 
+  tray = new Tray(getAssetPath('icon.png'))
+  // 鼠标放置上去显示的文字
+  tray.setToolTip('底稿上传工具')
+  tray.on('click', () => {
+    // 点击图标的响应事件，这里是切换主窗口的显示和隐藏
+    if (mainWindow?.isVisible()) {
+      mainWindow.hide()
+    } else {
+      mainWindow?.show()
+    }
+  })
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: '退出',
+      click: () => app.quit(),
+    },
+  ])
+  tray.setContextMenu(contextMenu)
+
   ipcMain.on('setCookie', (event, cookie) => {
     const win = BrowserWindow.getFocusedWindow()
     win?.webContents.session.cookies
@@ -118,34 +138,19 @@ const createWindow = async () => {
     win?.webContents.loadURL(url)
   })
 
+  ipcMain.handle('log', async (event, msg) => {
+    log.transports.file.level = 'debug'
+    log.transports.console.level = 'debug'
+    return new Promise((resolve) => {
+      log.info(msg)
+      resolve('log success')
+    })
+  })
+
   mainWindow.loadURL(resolveHtmlPath('index.html'))
   // 直接嵌入登录页
   // mainWindow.loadURL('https://ibdhub.gjzq.cn/apps/gjthrd_aries/manuscript/manuscriptProject')
   // mainWindow.loadURL('http://next-dev.gjzqth.com:8081/apps/gjthrd_aries/salesprogress')
-
-  tray = new Tray(iconPath) // 实例化一个tray对象，构造函数的唯一参数是需要在托盘中显示的图标url
-
-  tray.setToolTip('底稿上传工具') // 鼠标移到托盘中应用程序的图标上时，显示的文本
-
-  tray.on('click', () => {
-    // 点击图标的响应事件，这里是切换主窗口的显示和隐藏
-    if (mainWindow?.isVisible()) {
-      mainWindow.hide()
-    } else {
-      mainWindow?.show()
-    }
-  })
-
-  tray.on('right-click', () => {
-    // 右键点击图标时，出现的菜单，通过Menu.buildFromTemplate定制，这里只包含退出程序的选项。
-    const menuConfig = Menu.buildFromTemplate([
-      {
-        label: '退出',
-        click: () => app.quit(),
-      },
-    ])
-    tray.popUpContextMenu(menuConfig)
-  })
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -167,6 +172,7 @@ const createWindow = async () => {
   menuBuilder.buildMenu()
   // 去掉菜单栏
   mainWindow.removeMenu()
+  log.info('removeMenu success', 'arguments length')
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {

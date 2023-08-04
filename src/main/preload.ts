@@ -25,6 +25,7 @@ const electronHandler = {
   chrome: () => process.versions.chrome,
   electron: () => process.versions.electron,
   ping: () => ipcRenderer.invoke('ping'),
+  log: (message: string) => ipcRenderer.invoke('log', message),
   setTitle: (title: string) => ipcRenderer.send('set-title', title), // 修改标题
   openFile: () => ipcRenderer.invoke('dialog:openFile'), // 打开文件获取文件地址
   handleCounter: (callback: any) => ipcRenderer.on('update-counter', callback), // 原生操作系统菜单控制的数字计数器
